@@ -1,4 +1,4 @@
-import pickle
+import numpy as np
 import streamlit as st
 from streamlit_option_menu import option_menu
 
@@ -24,6 +24,8 @@ if selected == 'TicTacToe':
     # page title
     st.title('TicTacToe')
     st.write('This is a Decison Tree model for Diabetes Prediction')
+    board = np.zeros((3, 3))
+    st.write(board)
 
     # getting the input data from the user
     col1, col2, col3 = st.columns(3)
