@@ -60,25 +60,25 @@ if selected == 'TicTacToe':
         # getting the input data from the user
         col1, col2 = st.columns(2)
         with col1:
-            row = st.text_input('Enter Row Number (0-2)')
+            row = st.text_input('Enter Row Number [0-2]')
         with col2:
-            col = st.text_input('Enter Column Number (0-2)')
+            col = st.text_input('Enter Column Number [0-2]')
 
         buttonCol = st.columns(2)
         with buttonCol[0]:
             # player's turn
             if st.button('Play Button') and st.session_state.won == 0:
                 row, col = int(row), int(col)
-                if st.session_state.board[row, col] == 0:
+                if st.session_state.board[row, col] == 0 and 0 <= row and row <=2 and 0 <= col and col <= 2:
                     st.session_state.board[row, col] = st.session_state.player
                     st.session_state.won = has_won(st.session_state.board, st.session_state.player)
                     st.session_state.full = is_full(st.session_state.board)
 
-                # computers turn
-                if st.session_state.won != 1 and st.session_state.full != 1:
-                    response = st.session_state.computer.best_move(st.session_state.board, st.session_state.computer.player)
-                    st.session_state.board[response[1], response[2]] = st.session_state.computer.player
-                    st.session_state.won = -has_won(st.session_state.board, st.session_state.computer.player)
+                    # computers turn
+                    if st.session_state.won != 1 and st.session_state.full != 1:
+                        response = st.session_state.computer.best_move(st.session_state.board, st.session_state.computer.player)
+                        st.session_state.board[response[1], response[2]] = st.session_state.computer.player
+                        st.session_state.won = -has_won(st.session_state.board, st.session_state.computer.player)
         
         with buttonCol[1]:
             # Reset the board
@@ -108,18 +108,18 @@ if selected == 'TicTacToe':
         buttonCol = st.columns(2)
         with buttonCol[0]:
             # player's turn
-            if st.button('Play Button') and st.session_state.won == 0:
+            if st.session_state.board[row, col] == 0 and 0 <= row and row <=2 and 0 <= col and col <= 2:
                 row, col = int(row), int(col)
                 if st.session_state.board[row, col] == 0:
                     st.session_state.board[row, col] = st.session_state.player
                     st.session_state.won = has_won(st.session_state.board, st.session_state.player)
 
-                # computers turn
-                if st.session_state.won != 1 and st.session_state.full != 1:
-                    response = st.session_state.computer.best_move(st.session_state.board, st.session_state.computer.player)
-                    st.session_state.board[response[1], response[2]] = st.session_state.computer.player
-                    st.session_state.won = -has_won(st.session_state.board, st.session_state.computer.player)
-                    st.session_state.full = is_full(st.session_state.board)
+                    # computers turn
+                    if st.session_state.won != 1 and st.session_state.full != 1:
+                        response = st.session_state.computer.best_move(st.session_state.board, st.session_state.computer.player)
+                        st.session_state.board[response[1], response[2]] = st.session_state.computer.player
+                        st.session_state.won = -has_won(st.session_state.board, st.session_state.computer.player)
+                        st.session_state.full = is_full(st.session_state.board)
         
         with buttonCol[1]:
             # Reset the board
