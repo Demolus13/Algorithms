@@ -69,7 +69,7 @@ if selected == 'TicTacToe':
             # player's turn
             if st.button('Play Button') and st.session_state.won == 0:
                 row, col = int(row), int(col)
-                if st.session_state.board[row, col] == 0 and 0 <= row and row <=2 and 0 <= col and col <= 2:
+                if 0 <= row and row <=2 and 0 <= col and col <= 2 and st.session_state.board[row, col] == 0:
                     st.session_state.board[row, col] = st.session_state.player
                     st.session_state.won = has_won(st.session_state.board, st.session_state.player)
                     st.session_state.full = is_full(st.session_state.board)
@@ -108,7 +108,7 @@ if selected == 'TicTacToe':
         buttonCol = st.columns(2)
         with buttonCol[0]:
             # player's turn
-            if st.session_state.board[row, col] == 0 and 0 <= row and row <=2 and 0 <= col and col <= 2:
+            if 0 <= row and row <=2 and 0 <= col and col <= 2 and st.session_state.board[row, col] == 0:
                 row, col = int(row), int(col)
                 if st.session_state.board[row, col] == 0:
                     st.session_state.board[row, col] = st.session_state.player
