@@ -422,17 +422,6 @@ if selected == 'Connect4':
     h_board = 4
     w_board = 5
 
-    def print_board(board: np.ndarray):
-        """
-        board: np.ndarray: Playing board as an array
-        """
-
-        symbols = {0: '--', 1: 'R', -1: 'B'}
-        for i in range(h_board):
-            cols = st.columns(w_board)
-            for j in range(w_board):
-                cols[j].markdown(f"<h3 style='text-align: center;'>{symbols[board[i][j]]}</h3>", unsafe_allow_html=True)
-
     def is_full(board: np.ndarray) -> bool:
         """
         board: np.ndarray: Playing board as an array
