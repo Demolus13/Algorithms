@@ -1,9 +1,11 @@
 import numpy as np
+from copy import deepcopy
 import streamlit as st
 from streamlit_option_menu import option_menu
 
 import TicTacToe
 import Connect4
+import Sudoku
 
 # Set page configuration
 st.set_page_config(page_title="Algorithmic Games",
@@ -238,6 +240,8 @@ if selected == 'TicTacToe':
             """
             board: np.ndarray: Playing board as an array
             player: int: Numeric encoding
+
+            Return: np.ndarray: seen, row, column and score
             """
 
             assert ~is_full(board)
@@ -473,28 +477,28 @@ if selected == 'Connect4':
 
         # check for horizontal
         for row in range(h_board):
-            for col in range(2):
-                if board[row, col] == player and board[row, col+1] == player and board[row, col+2] == player and board[row, col+3] == player:
+            for col in range(w_board - 3):
+                if all(board[row, col+i] == player for i in range(4)):
                     return True
-            
+
         # check for vertical
         for col in range(w_board):
-            for row in range(h_board):
-                if board[row, col] != player:
-                    break
-            else:
-                return True
-            
+            for row in range(h_board - 3):
+                if all(board[row+i, col] == player for i in range(4)):
+                    return True
+
         # check for diagonal 1
-        for col in range(2):
-            if board[0, col] == player and board[1, col+1] == player and board[2, col+2] == player and board[3, col+3] == player:
-                return True
-        
+        for row in range(h_board - 3):
+            for col in range(w_board - 3):
+                if all(board[row+i, col+i] == player for i in range(4)):
+                    return True
+
         # check for diagonal 2
-        for col in range(3, w_board):
-            if board[0, col] == player and board[1, col-1] == player and board[2, col-2] == player and board[3, col-3] == player:
-                return True
-            
+        for row in range(h_board - 3):
+            for col in range(3, w_board):
+                if all(board[row+i, col-i] == player for i in range(4)):
+                    return True
+
         return False
     '''
     st.code(code, language='python')
@@ -508,6 +512,8 @@ if selected == 'Connect4':
             """
             board: np.ndarray: Playing board as an array
             player: int: Numeric encoding
+
+            Return: np.ndarray: column and score
             """
 
             self.board = board
@@ -575,50 +581,133 @@ if selected == 'Connect4':
 if selected == 'Sudoku':
 
     # page title
-    st.title('Sudoku')
-    st.write('This is a Decison Tree model for Diabetes Prediction')
+    st.title('Sudoku Solver')
+    st.write('Algorithm to solve the Sudoku Board')
+
+    # Initialize session_state
+    if 'solve1' not in st.session_state:
+        st.session_state.solve1 = 0
+    if 'board3' not in st.session_state:
+        st.session_state.board3 = np.zeros((9, 9), dtype=int)
+    if 'solver1' not in st.session_state:
+        st.session_state.solver1 = Sudoku.Sudoku(np.zeros((9, 9), dtype=int))
+    board3 = np.zeros((9, 9), dtype=int)
 
     # getting the input data from the user
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        Pregnancies = st.text_input('Number of Pregnancies')
-    with col2:
-        Glucose = st.text_input('Glucose Level')
-    with col3:
-        BloodPressure = st.text_input('Blood Pressure value')
-    with col1:
-        SkinThickness = st.text_input('Skin Thickness value')
-    with col2:
-        Insulin = st.text_input('Insulin Level')
-    with col3:
-        BMI = st.text_input('BMI value')
-    with col1:
-        DTreePedigreeFunction = st.text_input('DTree Pedigree Function value')
-    with col2:
-        Age = st.text_input('Age of the Person')
+    st.subheader('Enter the Sudoku Board (0 for empty cells):')
+    if st.button('Reset Button'):
+        st.session_state.solve1 = 0
+        st.session_state.solver1.board = np.zeros((9, 9), dtype=int)
+        for row in range(9):
+            cols = st.columns(9)
+            for col in range(9):
+                with cols[col]:
+                    st.session_state.board3[row, col] = st.text_input(f'Cell ({row}, {col})', board3[row, col], label_visibility='collapsed')
+    else:
+        for row in range(9):
+            cols = st.columns(9)
+            for col in range(9):
+                with cols[col]:
+                    st.session_state.board3[row, col] = st.text_input(f'Cell ({row}, {col})', st.session_state.board3[row, col], label_visibility='collapsed')
 
+    if st.button('Solve Button'):
+        st.session_state.solver1.board = deepcopy(st.session_state.board3)
+        st.session_state.solve1 = st.session_state.solver1.solve()
 
-    # code for Prediction
-    diab_diagnosis = ''
+    if st.session_state.solve1:
+        st.subheader('Solved Sudoku Board:')
+    else:
+        st.subheader('Given Sudoku Board:')
 
-    # creating a button for Prediction
-    if st.button('Predict'):
-        user_input = [Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin,
-                      BMI, DTreePedigreeFunction, Age]
-        user_input = [float(x) for x in user_input]
-        diab_prediction = 1
-        if diab_prediction[0] == 1:
-            diab_diagnosis = 'The person is diabetic'
-        else:
-            diab_diagnosis = 'The person is not diabetic'
-
-    st.success(f"Prediction: {diab_diagnosis}")
+    Sudoku.print_board(st.session_state.solver1.board)
 
     # code block
     st.title('Notebook')
     code = '''
-    def hello():
-        print("Hello, Streamlit!")
+    """
+    Utilities for the game
+    """
+
+    n_board = 9
+
+    def is_full(board: np.ndarray) -> np.ndarray:
+        """
+        board: np.ndarray: Sudoku board as an array
+
+        Return: np.ndarray: is_full, row, and column
+        """
+
+        for row in range(n_board):
+            for col in range(n_board):
+                if board[row, col] == 0:
+                    return [0, row, col]
+        return [1, -1, -1]
+
+    def is_valid(board: np.ndarray) -> bool:
+        """
+        board: np.ndarray: Sudoku board as an array
+
+        Return: bool: if the board is a valid sudoku board
+        """
+
+        # check for horizontal
+        for row in range(n_board):
+            counts = np.bincount(board[row, :])
+            if any(count > 1 for count in counts[1:]):
+                return False
+            
+        # check for vertical
+        for col in range(n_board):
+            counts = np.bincount(board[:, col])
+            if any(count > 1 for count in counts[1:]):
+                return False
+            
+        # check for boxes
+        for row in range(0, n_board, 3):
+            for col in range(0, n_board, 3):
+                box = board[row:row+3, col:col+3].flatten()
+                counts = np.bincount(box)
+                if any(count > 1 for count in counts[1:]):
+                    return False
+        
+        return True
+    '''
+    st.code(code, language='python')
+    code = '''
+    class Sudoku():
+        """
+        An Sudoku Solver
+        """
+
+        def __init__(self, board: np.ndarray):
+            """
+            board: np.ndarray: Sudoku board as an array
+            """
+
+            self.board = board
+
+        def solve(self) -> bool:
+            """
+            Return: bool: if the board is solvable
+            """
+
+            # solved sudoku board
+            find = is_full(self.board)
+            if find[0]:
+                return True
+            else:
+                row, col = find[1:]
+
+            for i in range(1, 10):
+                self.board[row, col] = i
+                if is_valid(self.board):
+                    
+                    if self.solve():
+                        return True
+                    
+                self.board[row, col] = 0
+
+            return False
     '''
     st.code(code, language='python')
 

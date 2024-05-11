@@ -114,6 +114,8 @@ class TicTacToe():
     def best_move(self, board: np.ndarray, player: int) -> np.ndarray:
         """
         board: np.ndarray: Playing board as an array
+
+        Return: np.ndarray: seen, row, column and score
         """
 
         assert ~is_full(board)

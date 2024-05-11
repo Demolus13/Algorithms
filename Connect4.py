@@ -77,28 +77,28 @@ def has_won(board: np.ndarray, player: int) -> bool:
 
     # check for horizontal
     for row in range(h_board):
-        for col in range(2):
-            if board[row, col] == player and board[row, col+1] == player and board[row, col+2] == player and board[row, col+3] == player:
+        for col in range(w_board - 3):
+            if all(board[row, col+i] == player for i in range(4)):
                 return True
-        
+
     # check for vertical
     for col in range(w_board):
-        for row in range(h_board):
-            if board[row, col] != player:
-                break
-        else:
-            return True
-        
+        for row in range(h_board - 3):
+            if all(board[row+i, col] == player for i in range(4)):
+                return True
+
     # check for diagonal 1
-    for col in range(2):
-        if board[0, col] == player and board[1, col+1] == player and board[2, col+2] == player and board[3, col+3] == player:
-            return True
-    
+    for row in range(h_board - 3):
+        for col in range(w_board - 3):
+            if all(board[row+i, col+i] == player for i in range(4)):
+                return True
+
     # check for diagonal 2
-    for col in range(3, w_board):
-        if board[0, col] == player and board[1, col-1] == player and board[2, col-2] == player and board[3, col-3] == player:
-            return True
-        
+    for row in range(h_board - 3):
+        for col in range(3, w_board):
+            if all(board[row+i, col-i] == player for i in range(4)):
+                return True
+
     return False
 
 class Connect4():
@@ -122,6 +122,8 @@ class Connect4():
         depth: int: Search depth of the computer
         alpha: int: maximum possible score
         beta: int: minimum possible score
+
+        Return: np.ndarray: column and score
         """
 
         assert ~is_full(board)
